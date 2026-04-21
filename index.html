@@ -739,6 +739,11 @@
             <div id="gist-status" class="gist-status">
                 共享状态：未配置
             </div>
+            <div id="gist-config-details" style="font-size: 14px; margin-top: 10px; padding: 10px; background-color: #f8f9fa; border-radius: 4px; display: none;">
+                <div><strong>当前配置：</strong></div>
+                <div>Gist ID: <span id="gist-id-display">未配置</span> <button id="copy-gist-id-btn" style="margin-left: 10px; padding: 2px 8px; font-size: 12px;">复制ID</button></div>
+                <div>GitHub令牌: <span id="gist-token-display">未配置</span></div>
+            </div>
             <div style="font-size: 12px; color: #6c757d; margin-top: 10px;">
                 <strong>使用说明：</strong><br>
                 1. 在GitHub创建Gist（文件名为it_questions.json，内容为[]）<br>
@@ -928,18 +933,31 @@
             const statusElement = document.getElementById('gist-status');
             const gistIdInput = document.getElementById('gist-id-input');
             const gistTokenInput = document.getElementById('gist-token-input');
+            const configDetailsElement = document.getElementById('gist-config-details');
+            const gistIdDisplayElement = document.getElementById('gist-id-display');
+            const gistTokenDisplayElement = document.getElementById('gist-token-display');
             
             if (gistId && gistToken) {
                 const maskedToken = gistToken.substring(0, 8) + '...' + gistToken.substring(gistToken.length - 4);
-                statusElement.textContent = `共享状态：已配置 (Gist: ${gistId.substring(0, 8)}...)`;
+                statusElement.textContent = `共享状态：已配置`;
                 statusElement.className = 'gist-status connected';
                 gistIdInput.value = '';
                 gistTokenInput.value = '';
+                
+                // 显示配置详情
+                configDetailsElement.style.display = 'block';
+                gistIdDisplayElement.textContent = gistId;
+                gistTokenDisplayElement.textContent = maskedToken;
             } else {
                 statusElement.textContent = '共享状态：未配置';
                 statusElement.className = 'gist-status disconnected';
                 gistIdInput.value = '';
                 gistTokenInput.value = '';
+                
+                // 隐藏配置详情
+                configDetailsElement.style.display = 'none';
+                gistIdDisplayElement.textContent = '未配置';
+                gistTokenDisplayElement.textContent = '未配置';
             }
         }
         
@@ -1729,6 +1747,34 @@
                 if (e.key === 'Enter') {
                     document.getElementById('save-gist-config-btn').click();
                 }
+            });
+            
+            // 复制Gist ID按钮事件监听
+            document.getElementById('copy-gist-id-btn').addEventListener('click', () => {
+                const gistIdDisplayElement = document.getElementById('gist-id-display');
+                const gistId = gistIdDisplayElement.textContent;
+                
+                if (!gistId || gistId === '未配置') {
+                    alert('当前未配置Gist ID');
+                    return;
+                }
+                
+                navigator.clipboard.writeText(gistId).then(() => {
+                    alert('Gist ID已复制到剪贴板');
+                }).catch(err => {
+                    // 降级方案：使用临时textarea复制
+                    const textArea = document.createElement('textarea');
+                    textArea.value = gistId;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        alert('Gist ID已复制到剪贴板');
+                    } catch (copyErr) {
+                        alert('复制失败，请手动复制Gist ID');
+                    }
+                    document.body.removeChild(textArea);
+                });
             });
         }
         
