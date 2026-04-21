@@ -1,0 +1,12 @@
+{
+  "name": "it-helpdesk",
+  "version": "1.0.0",
+  "description": "IT运维小助手 - 北京视通IT部",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["it", "helpdesk", "ai"],
+  "author": "北京视通IT部",
+  "license": "MIT"
+}

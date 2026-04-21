@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>北京视通IT运维小助手</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .department {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .nav-tab {
+            padding: 10px 20px;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-tab:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .nav-tab.active {
+            background-color: white;
+            font-weight: bold;
+            border-color: #ddd #ddd white #ddd;
+        }
+        
+        .tab-content {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .mode-selection {
+            margin-bottom: 20px;
+        }
+        
+        .mode-selection h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .mode-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .mode-btn {
+            padding: 10px 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f0f0f0;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .mode-btn:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .mode-btn.active {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+        
+        .question-section {
+            margin-bottom: 20px;
+        }
+        
+        .question-section h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        #question {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            resize: vertical;
+            min-height: 100px;
+            font-family: Arial, sans-serif;
+        }
+        
+        #question:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
+        
+        .submit-btn {
+            padding: 12px 24px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .submit-btn:hover {
+            background-color: #45a049;
+            transform: translateY(-1px);
+        }
+        
+        .submit-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid #4CAF50;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .answer-section {
+            margin-top: 30px;
+            display: none;
+        }
+        
+        .answer-section.show {
+            display: block;
+        }
+        
+        .answer-section h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .answer-content {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 4px;
+            border-left: 4px solid #4CAF50;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+        
+        .add-question-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .form-group label {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            font-family: Arial, sans-serif;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
+        
+        .success-message {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .success-message.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .question-list {
+            margin-top: 20px;
+        }
+        
+        .question-list h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .question-items {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+        }
+        
+        .question-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .question-item:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        
+        .question-actions-small {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .edit-btn, .delete-btn-small {
+            padding: 3px 8px;
+            border: none;
+            border-radius: 3px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .edit-btn {
+            background-color: #5bc0de;
+            color: white;
+        }
+        
+        .edit-btn:hover {
+            background-color: #31b0d5;
+        }
+        
+        .delete-btn-small {
+            background-color: #d9534f;
+            color: white;
+        }
+        
+        .delete-btn-small:hover {
+            background-color: #c9302c;
+        }
+        
+        .question-item:last-child {
+            border-bottom: none;
+        }
+        
+        .question-item .question-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .question-category {
+            font-size: 12px;
+            background-color: #5bc0de;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-right: 5px;
+        }
+        
+        .question-item .question-solution {
+            font-size: 14px;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .search-section {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .search-input {
+            flex: 2;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .category-select {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: white;
+        }
+        
+        .search-btn, .clear-search-btn {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f0f0f0;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .search-btn:hover {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+        
+        .clear-search-btn:hover {
+            background-color: #f0ad4e;
+            color: white;
+            border-color: #f0ad4e;
+        }
+        
+        .question-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .action-btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .delete-btn {
+            background-color: #d9534f;
+            color: white;
+        }
+        
+        .delete-btn:hover {
+            background-color: #c9302c;
+        }
+        
+        .export-btn {
+            background-color: #5bc0de;
+            color: white;
+        }
+        
+        .export-btn:hover {
+            background-color: #31b0d5;
+        }
+        
+        .import-btn {
+            background-color: #5cb85c;
+            color: white;
+        }
+        
+        .import-btn:hover {
+            background-color: #4cae4c;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .warning {
+            color: #d9534f;
+            font-weight: bold;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+        
+        .api-key-section {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+        }
+        
+        .api-key-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .api-key-input label {
+            font-weight: bold;
+            color: #495057;
+            white-space: nowrap;
+        }
+        
+        .api-key-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 250px;
+        }
+        
+        .api-key-input button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s ease;
+        }
+        
+        #save-api-key-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        #save-api-key-btn:hover {
+            background-color: #218838;
+        }
+        
+        #clear-api-key-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        #clear-api-key-btn:hover {
+            background-color: #c82333;
+        }
+        
+        .api-key-status {
+            font-size: 14px;
+            color: #6c757d;
+            padding: 5px 0;
+        }
+        
+        .api-key-status.valid {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .api-key-status.invalid {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .tab-content {
+                padding: 20px;
+            }
+            
+            .api-key-input {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .api-key-input input {
+                min-width: 100%;
+                margin-bottom: 10px;
+            }
+            
+            .api-key-input button {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            
+            .mode-buttons {
+                flex-direction: column;
+            }
+            
+            .mode-btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>IT运维小助手</h1>
+            <p class="subtitle">基于DeepSeek AI的智能问答系统</p>
+            <p class="department">北京视通IT部</p>
+        </header>
+        
+        <div class="api-key-section">
+            <div class="api-key-input">
+                <label for="api-key-input">DeepSeek API密钥：</label>
+                <input 
+                    type="password" 
+                    id="api-key-input" 
+                    placeholder="请输入您的DeepSeek API密钥"
+                />
+                <button id="save-api-key-btn">保存</button>
+                <button id="clear-api-key-btn">清除</button>
+            </div>
+            <div id="api-key-status" class="api-key-status">
+                密钥状态：未设置
+            </div>
+        </div>
+        
+        <div class="nav-tabs">
+            <div class="nav-tab active" data-tab="ask">智能问答</div>
+            <div class="nav-tab" data-tab="add">添加问题</div>
+            <div class="nav-tab" data-tab="manage">问题管理</div>
+        </div>
+        
+        <div class="tab-content active" data-tab="ask">
+            <div class="mode-selection">
+                <h2>选择模式</h2>
+                <div class="mode-buttons">
+                    <button class="mode-btn active" data-mode="1">普通问答</button>
+                    <button class="mode-btn" data-mode="2">深度思考</button>
+                </div>
+            </div>
+            
+            <div class="question-section">
+                <h2>输入问题</h2>
+                <textarea 
+                    id="question" 
+                    placeholder="请输入您的IT运维问题，例如：电脑无法开机怎么办？"
+                ></textarea>
+                <button class="submit-btn" id="submit-btn">提交问题</button>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <p>AI正在思考中...</p>
+            </div>
+            
+            <div class="answer-section" id="answer-section">
+                <h2>回答</h2>
+                <div class="answer-content" id="answer-content"></div>
+            </div>
+        </div>
+        
+        <div class="tab-content" data-tab="add">
+            <h2>添加问题和解决方案</h2>
+            <form class="add-question-form" id="add-question-form">
+                <div class="form-group">
+                    <label for="new-question-title">问题标题：</label>
+                    <input 
+                        type="text" 
+                        id="new-question-title" 
+                        placeholder="请输入问题标题"
+                        required
+                    />
+                </div>
+                <div class="form-group">
+                    <label for="new-question-category">问题分类：</label>
+                    <select id="new-question-category" required>
+                        <option value="">请选择分类</option>
+                        <option value="硬件问题">硬件问题</option>
+                        <option value="软件问题">软件问题</option>
+                        <option value="网络问题">网络问题</option>
+                        <option value="系统问题">系统问题</option>
+                        <option value="安全防护">安全防护</option>
+                        <option value="办公软件">办公软件</option>
+                        <option value="外设设备">外设设备</option>
+                        <option value="其他问题">其他问题</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="new-question-solution">解决方案：</label>
+                    <textarea 
+                        id="new-question-solution" 
+                        placeholder="请输入详细的解决方案"
+                        rows="5"
+                        required
+                    ></textarea>
+                </div>
+                <button type="submit" class="submit-btn">添加问题</button>
+            </form>
+            <div class="success-message" id="success-message">
+                问题添加成功！
+            </div>
+        </div>
+        
+        <div class="tab-content" data-tab="manage">
+            <h2>问题管理</h2>
+            <div class="search-section">
+                <input 
+                    type="text" 
+                    id="search-question" 
+                    placeholder="搜索问题内容..."
+                    class="search-input"
+                />
+                <select id="search-category" class="category-select">
+                    <option value="">所有分类</option>
+                    <option value="硬件问题">硬件问题</option>
+                    <option value="软件问题">软件问题</option>
+                    <option value="网络问题">网络问题</option>
+                    <option value="系统问题">系统问题</option>
+                    <option value="安全防护">安全防护</option>
+                    <option value="办公软件">办公软件</option>
+                    <option value="外设设备">外设设备</option>
+                    <option value="其他问题">其他问题</option>
+                </select>
+                <button class="search-btn" id="search-btn">搜索</button>
+                <button class="clear-search-btn" id="clear-search-btn">清除搜索</button>
+            </div>
+            <div class="question-list">
+                <h3>已添加的问题 <span id="question-count">(0)</span></h3>
+                <div class="question-items" id="question-items">
+                    <!-- 问题列表将通过JavaScript动态生成 -->
+                </div>
+            </div>
+            <div class="question-actions">
+                <button class="action-btn delete-btn" id="delete-all-btn">删除所有问题</button>
+                <button class="action-btn export-btn" id="export-btn">导出问题</button>
+                <button class="action-btn import-btn" id="import-btn">导入问题</button>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© 2026 IT运维小助手 - 基于DeepSeek AI</p>
+            <p class="warning">本系统仅供职场内部使用，禁止外传</p>
+        </div>
+    </div>
+    
+    <script>
+        // API配置
+        const API_URL = "https://api.deepseek.com/v1/chat/completions";
+        
+        // API密钥管理
+        function getApiKey() {
+            return localStorage.getItem('deepseek_api_key') || '';
+        }
+        
+        function setApiKey(key) {
+            localStorage.setItem('deepseek_api_key', key);
+            updateApiKeyStatus();
+        }
+        
+        function clearApiKey() {
+            localStorage.removeItem('deepseek_api_key');
+            updateApiKeyStatus();
+        }
+        
+        function updateApiKeyStatus() {
+            const apiKey = getApiKey();
+            const statusElement = document.getElementById('api-key-status');
+            const apiKeyInput = document.getElementById('api-key-input');
+            
+            if (apiKey) {
+                const maskedKey = apiKey.substring(0, 8) + '...' + apiKey.substring(apiKey.length - 4);
+                statusElement.textContent = `密钥状态：已设置 (${maskedKey})`;
+                statusElement.className = 'api-key-status valid';
+                apiKeyInput.value = ''; // 清除输入框，不显示完整密钥
+            } else {
+                statusElement.textContent = '密钥状态：未设置';
+                statusElement.className = 'api-key-status';
+                apiKeyInput.value = '';
+            }
+        }
+        // 系统提示词 - 限定为IT运维相关问题
+        const SYSTEM_PROMPT = `你是一个专业的IT运维助手，专门解决北京视通公司内部的IT问题。
+请遵守以下规则：
+1. 只回答与IT运维、计算机硬件、软件、网络、系统、安全、办公软件、外设设备等相关的问题
+2. 禁止回答任何与娱乐相关的问题，包括但不限于：游戏、电影、音乐、视频、电视剧、综艺、体育、明星等
+3. 如果用户询问非IT问题，请礼貌地拒绝并提醒用户应询问IT相关问题
+4. 请提供详细、准确、实用的解决方案，包括具体步骤、命令、配置、注意事项和预防措施
+5. 对于复杂问题，请提供分步骤解决方案，并标注重要步骤
+6. 对于安全问题，请提供明确的安全操作指引
+7. 推荐解决方案时，请优先考虑公司内部常用软件和工具
+8. 保持专业、友好、高效的态度
+         9. 所有回答请使用中文，技术术语可保留英文`;
+         
+        // 在本地问题库中查找解决方案
+        function findLocalSolution(question) {
+            const questions = loadQuestions();
+            const lowerQuestion = question.toLowerCase();
+            
+            // 精确匹配
+            const exactMatch = questions.find(q => 
+                q.title.toLowerCase() === lowerQuestion || 
+                q.title.toLowerCase().includes(lowerQuestion)
+            );
+            if (exactMatch) {
+                return exactMatch.solution;
+            }
+            
+            // 关键词匹配
+            const keywords = lowerQuestion.split(/\s+/).filter(k => k.length > 2);
+            for (const q of questions) {
+                const qLowerTitle = q.title.toLowerCase();
+                const qLowerSolution = q.solution.toLowerCase();
+                
+                // 检查是否包含任何关键词
+                const hasKeyword = keywords.some(keyword => 
+                    qLowerTitle.includes(keyword) || qLowerSolution.includes(keyword)
+                );
+                
+                if (hasKeyword) {
+                    return q.solution;
+                }
+            }
+            
+            return null;
+        }
+         
+        // 娱乐相关关键词
+        const ENTERTAINMENT_KEYWORDS = [
+            '游戏', '电影', '音乐', '体育', '明星', '八卦', '娱乐', 
+            '电视剧', '综艺', '动漫', '小说', '直播', '网红',
+            '追星', '粉丝', '偶像', '歌手', '演员', '导演',
+            '足球', '篮球', '网球', '羽毛球', '乒乓球',
+            '英雄联盟', '王者荣耀', '吃鸡', '原神', '王者荣耀',
+            '抖音', '快手', 'B站', '微博', '小红书'
+        ];
+        
+        // 检查问题是否包含娱乐相关内容
+        function containsEntertainmentContent(question) {
+            const lowerQuestion = question.toLowerCase();
+            return ENTERTAINMENT_KEYWORDS.some(keyword => 
+                lowerQuestion.includes(keyword.toLowerCase())
+            );
+        }
+        
+        // DOM元素
+        const navTabs = document.querySelectorAll('.nav-tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const modeButtons = document.querySelectorAll('.mode-btn');
+        const questionInput = document.getElementById('question');
+        const submitButton = document.getElementById('submit-btn');
+        const loadingElement = document.getElementById('loading');
+        const answerSection = document.getElementById('answer-section');
+        const answerContent = document.getElementById('answer-content');
+        const addQuestionForm = document.getElementById('add-question-form');
+        const successMessage = document.getElementById('success-message');
+        const questionItems = document.getElementById('question-items');
+        const searchInput = document.getElementById('search-question');
+        const searchCategory = document.getElementById('search-category');
+        const searchBtn = document.getElementById('search-btn');
+        const clearSearchBtn = document.getElementById('clear-search-btn');
+        const questionCount = document.getElementById('question-count');
+        const deleteAllBtn = document.getElementById('delete-all-btn');
+        const exportBtn = document.getElementById('export-btn');
+        const importBtn = document.getElementById('import-btn');
+        
+        // 当前选择的模式
+        let currentMode = '1';
+        
+        // 从本地存储加载问题
+        function loadQuestions() {
+            const questions = localStorage.getItem('it_helpdesk_questions');
+            const parsedQuestions = questions ? JSON.parse(questions) : [];
+            
+            // 确保所有问题都有分类字段（向后兼容）
+            return parsedQuestions.map(q => {
+                if (!q.category) {
+                    q.category = '其他问题';
+                }
+                return q;
+            });
+        }
+        
+        // 保存问题到本地存储
+        function saveQuestions(questions) {
+            localStorage.setItem('it_helpdesk_questions', JSON.stringify(questions));
+        }
+        
+        // 渲染问题列表
+        function renderQuestionList(questions = null, searchTerm = '', category = '') {
+            if (questions === null) {
+                questions = loadQuestions();
+            }
+            
+            questionItems.innerHTML = '';
+            
+            // 应用搜索过滤
+            let filteredQuestions = questions;
+            if (searchTerm) {
+                const lowerSearchTerm = searchTerm.toLowerCase();
+                filteredQuestions = filteredQuestions.filter(q => 
+                    q.title.toLowerCase().includes(lowerSearchTerm) || 
+                    q.solution.toLowerCase().includes(lowerSearchTerm)
+                );
+            }
+            
+            // 应用分类过滤
+            if (category) {
+                filteredQuestions = filteredQuestions.filter(q => 
+                    (q.category || '其他问题') === category
+                );
+            }
+            
+            // 更新问题计数
+            questionCount.textContent = `(${filteredQuestions.length}/${questions.length})`;
+            
+            if (filteredQuestions.length === 0) {
+                let noResultsMsg = '<p style="text-align: center; color: #666;">暂无添加的问题</p>';
+                if (searchTerm || category) {
+                    const searchInfo = [];
+                    if (searchTerm) searchInfo.push(`"${searchTerm}"`);
+                    if (category) searchInfo.push(`分类: ${category}`);
+                    noResultsMsg = `<p style="text-align: center; color: #666;">没有找到${searchInfo.join('，')}的问题</p>`;
+                }
+                questionItems.innerHTML = noResultsMsg;
+                return;
+            }
+            
+            filteredQuestions.forEach((q, index) => {
+                const item = document.createElement('div');
+                item.className = 'question-item';
+                const categoryText = q.category ? `<span class="question-category">[${q.category}]</span> ` : '';
+                item.innerHTML = `
+                    <div class="question-header">
+                        <div class="question-title">${categoryText}${q.title}</div>
+                        <div class="question-actions-small">
+                            <button class="edit-btn" data-index="${index}">编辑</button>
+                            <button class="delete-btn-small" data-index="${index}">删除</button>
+                        </div>
+                    </div>
+                    <div class="question-solution">${q.solution.substring(0, 50)}${q.solution.length > 50 ? '...' : ''}</div>
+                `;
+                item.addEventListener('click', (e) => {
+                    // 如果点击的是编辑或删除按钮，不触发跳转
+                    if (e.target.classList.contains('edit-btn') || e.target.classList.contains('delete-btn-small')) {
+                        return;
+                    }
+                    // 点击问题时，将问题标题填充到问答页面的输入框
+                    questionInput.value = q.title;
+                    // 切换到问答页面
+                    switchTab('ask');
+                });
+                questionItems.appendChild(item);
+            });
+            
+            // 为编辑和删除按钮添加事件监听器
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const index = parseInt(btn.getAttribute('data-index'));
+                    editQuestion(index);
+                });
+            });
+            
+            document.querySelectorAll('.delete-btn-small').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const index = parseInt(btn.getAttribute('data-index'));
+                    deleteQuestion(index);
+                });
+            });
+        }
+        
+        // 编辑问题
+        function editQuestion(index) {
+            const questions = loadQuestions();
+            if (index < 0 || index >= questions.length) {
+                alert('问题不存在');
+                return;
+            }
+            
+            const question = questions[index];
+            
+            // 填充编辑表单
+            document.getElementById('new-question-title').value = question.title;
+            document.getElementById('new-question-category').value = question.category || '其他问题';
+            document.getElementById('new-question-solution').value = question.solution;
+            
+            // 切换到添加问题页面
+            switchTab('add');
+            
+            // 修改页面标题和按钮文本
+            const formTitle = document.querySelector('#add-question-form').previousElementSibling;
+            const originalTitle = formTitle.textContent;
+            const submitBtn = document.querySelector('#add-question-form .submit-btn');
+            const originalBtnText = submitBtn.textContent;
+            
+            formTitle.textContent = '编辑问题和解决方案';
+            submitBtn.textContent = '更新问题';
+            
+            // 临时事件处理器
+            const handleEditSubmit = (e) => {
+                e.preventDefault();
+                
+                const title = document.getElementById('new-question-title').value.trim();
+                const category = document.getElementById('new-question-category').value;
+                const solution = document.getElementById('new-question-solution').value.trim();
+                
+                if (!title || !category || !solution) {
+                    alert('请填写完整的问题、分类和解决方案');
+                    return;
+                }
+                
+                // 更新问题
+                questions[index] = { title, category, solution };
+                saveQuestions(questions);
+                
+                // 恢复原始状态
+                formTitle.textContent = originalTitle;
+                submitBtn.textContent = originalBtnText;
+                addQuestionForm.removeEventListener('submit', handleEditSubmit);
+                
+                // 重置表单
+                addQuestionForm.reset();
+                
+                // 更新问题列表
+                renderQuestionList();
+                
+                // 切换回问题管理页面
+                switchTab('manage');
+                
+                alert('问题更新成功');
+            };
+            
+            // 添加临时事件监听器
+            addQuestionForm.addEventListener('submit', handleEditSubmit);
+        }
+        
+        // 删除问题
+        function deleteQuestion(index) {
+            if (!confirm('确定要删除这个问题吗？')) {
+                return;
+            }
+            
+            const questions = loadQuestions();
+            if (index < 0 || index >= questions.length) {
+                alert('问题不存在');
+                return;
+            }
+            
+            questions.splice(index, 1);
+            saveQuestions(questions);
+            renderQuestionList();
+            alert('问题已删除');
+        }
+        
+        // 初始化问题列表
+        function initQuestionList() {
+            renderQuestionList();
+        }
+        
+        // 切换标签页
+        function switchTab(tabId) {
+            navTabs.forEach(tab => {
+                if (tab.dataset.tab === tabId) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+            
+            tabContents.forEach(content => {
+                if (content.dataset.tab === tabId) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+            
+            // 如果切换到问题管理页面，重新加载问题列表
+            if (tabId === 'manage') {
+                initQuestionList();
+            }
+        }
+        
+        // 查找本地问题（改进版）
+        function findLocalQuestion(question) {
+            const questions = loadQuestions();
+            const lowerQuestion = question.toLowerCase();
+            
+            // 1. 精确匹配
+            const exactMatch = questions.find(q => 
+                q.title.toLowerCase() === lowerQuestion
+            );
+            if (exactMatch) return exactMatch;
+            
+            // 2. 包含匹配（标题包含问题或问题包含标题）
+            const containsMatch = questions.find(q => 
+                q.title.toLowerCase().includes(lowerQuestion) || 
+                lowerQuestion.includes(q.title.toLowerCase())
+            );
+            if (containsMatch) return containsMatch;
+            
+            // 3. 关键词匹配
+            const keywords = lowerQuestion.split(/\s+/).filter(k => k.length > 2);
+            for (const q of questions) {
+                const qLowerTitle = q.title.toLowerCase();
+                const qLowerSolution = q.solution.toLowerCase();
+                
+                // 检查是否包含任何关键词
+                const hasKeyword = keywords.some(keyword => 
+                    qLowerTitle.includes(keyword) || qLowerSolution.includes(keyword)
+                );
+                
+                if (hasKeyword) {
+                    return q;
+                }
+            }
+            
+            return null;
+        }
+        
+        // 模式选择处理
+        modeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                modeButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                currentMode = button.dataset.mode;
+            });
+        });
+        
+        // 标签页切换处理
+        navTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                switchTab(tab.dataset.tab);
+            });
+        });
+        
+        // 提交问题处理
+        submitButton.addEventListener('click', async () => {
+            const question = questionInput.value.trim();
+            if (!question) {
+                alert('请输入问题');
+                return;
+            }
+            
+            // 检查问题是否包含娱乐相关内容
+            if (containsEntertainmentContent(question)) {
+                answerContent.textContent = '抱歉，我专注于IT运维相关问题，无法回答娱乐性质的问题。请询问与电脑硬件、软件、网络、系统维护等相关的技术问题。';
+                answerSection.classList.add('show');
+                answerSection.scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+            
+            // 检查API密钥
+            const apiKey = getApiKey();
+            if (!apiKey) {
+                alert('请先设置DeepSeek API密钥。在页面顶部输入您的API密钥并点击"保存"。');
+                document.getElementById('api-key-input').focus();
+                return;
+            }
+            
+            // 先查找本地问题
+            const localQuestion = findLocalQuestion(question);
+            if (localQuestion) {
+                // 显示本地问题的解决方案
+                answerContent.textContent = localQuestion.solution;
+                answerSection.classList.add('show');
+                answerSection.scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+            
+            // 显示加载状态
+            loadingElement.classList.add('show');
+            submitButton.disabled = true;
+            
+            try {
+                // 调用API
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${getApiKey()}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: currentMode === '1' ? 'deepseek-chat' : 'deepseek-reasoner',
+                        messages: [
+                            {"role": "system", "content": SYSTEM_PROMPT},
+                            {"role": "user", "content": question}
+                        ],
+                        max_tokens: 2000
+                    })
+                });
+                
+                const result = await response.json();
+                
+                // 检查API错误响应
+                if (result.error) {
+                    throw new Error(`API错误: ${result.error.message || result.error.code || '未知错误'}`);
+                }
+                
+                // 处理响应
+                let answer = '';
+                if (result.choices && result.choices[0] && result.choices[0].message) {
+                    const message = result.choices[0].message;
+                    if (message.reasoning_content) {
+                        answer = `【推理】\n${message.reasoning_content}\n\n【回答】\n${message.content}`;
+                    } else {
+                        answer = message.content;
+                    }
+                } else {
+                    answer = '抱歉，未能获取回答，请稍后重试。';
+                }
+                
+                // 显示回答
+                answerContent.textContent = answer;
+                answerSection.classList.add('show');
+                
+                // 滚动到回答区域
+                answerSection.scrollIntoView({ behavior: 'smooth' });
+                
+            } catch (error) {
+                console.error('API调用错误:', error);
+                let errorMessage = '调用API时发生错误，请稍后重试。';
+                
+                // 检查是否为认证错误
+                if (error.message && error.message.includes('401')) {
+                    errorMessage = 'API密钥无效或已过期。请检查您的DeepSeek API密钥是否正确，或重新设置API密钥。';
+                } else if (error.message && error.message.includes('429')) {
+                    errorMessage = 'API调用频率超限，请稍后再试。';
+                }
+                
+                answerContent.textContent = errorMessage;
+                answerSection.classList.add('show');
+            } finally {
+                // 隐藏加载状态
+                loadingElement.classList.remove('show');
+                submitButton.disabled = false;
+            }
+        });
+        
+        // 添加问题表单处理
+        addQuestionForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const title = document.getElementById('new-question-title').value.trim();
+            const category = document.getElementById('new-question-category').value;
+            const solution = document.getElementById('new-question-solution').value.trim();
+            
+            if (!title || !category || !solution) {
+                alert('请填写完整的问题、分类和解决方案');
+                return;
+            }
+            
+            // 获取现有问题
+            const questions = loadQuestions();
+            
+            // 检查是否已存在相同问题
+            const existingQuestion = questions.find(q => q.title === title);
+            if (existingQuestion) {
+                alert('该问题已存在，请修改问题标题');
+                return;
+            }
+            
+            // 添加新问题
+            questions.push({ title, category, solution });
+            
+            // 保存到本地存储
+            saveQuestions(questions);
+            
+            // 显示成功消息
+            successMessage.classList.add('show');
+            
+            // 清空表单
+            addQuestionForm.reset();
+            
+            // 更新问题列表
+            renderQuestionList();
+            
+            // 2秒后隐藏成功消息
+            setTimeout(() => {
+                successMessage.classList.remove('show');
+            }, 2000);
+        });
+        
+        // 回车键提交
+        questionInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                submitButton.click();
+            }
+        });
+        
+        // 搜索功能处理
+        searchBtn.addEventListener('click', () => {
+            const searchTerm = searchInput.value.trim();
+            const category = searchCategory.value;
+            renderQuestionList(null, searchTerm, category);
+        });
+        
+        // 搜索输入框回车搜索
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const searchTerm = searchInput.value.trim();
+                const category = searchCategory.value;
+                renderQuestionList(null, searchTerm, category);
+            }
+        });
+        
+        // 清除搜索
+        clearSearchBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            searchCategory.value = '';
+            renderQuestionList();
+        });
+        
+        // 删除所有问题
+        deleteAllBtn.addEventListener('click', () => {
+            if (confirm('确定要删除所有问题吗？此操作不可恢复！')) {
+                localStorage.removeItem('it_helpdesk_questions');
+                renderQuestionList();
+                alert('所有问题已删除');
+            }
+        });
+        
+        // 导出问题
+        exportBtn.addEventListener('click', () => {
+            const questions = loadQuestions();
+            if (questions.length === 0) {
+                alert('没有可导出的问题');
+                return;
+            }
+            
+            const dataStr = JSON.stringify(questions, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = 'it_questions_'+ new Date().toISOString().slice(0,10) +'.json';
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        });
+        
+        // 导入问题
+        importBtn.addEventListener('click', () => {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.json';
+            
+            fileInput.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const importedQuestions = JSON.parse(e.target.result);
+                        if (!Array.isArray(importedQuestions)) {
+                            throw new Error('文件格式不正确');
+                        }
+                        
+                        const currentQuestions = loadQuestions();
+                        const mergedQuestions = [...currentQuestions];
+                        
+                        importedQuestions.forEach(importedQ => {
+                            const existingIndex = mergedQuestions.findIndex(q => q.title === importedQ.title);
+                            if (existingIndex >= 0) {
+                                mergedQuestions[existingIndex] = importedQ;
+                            } else {
+                                mergedQuestions.push(importedQ);
+                            }
+                        });
+                        
+                        saveQuestions(mergedQuestions);
+                        renderQuestionList();
+                        alert(`成功导入${importedQuestions.length}个问题，当前共有${mergedQuestions.length}个问题`);
+                    } catch (error) {
+                        alert('导入失败：' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            
+            fileInput.click();
+        });
+        
+        // 初始化
+        function init() {
+            // 初始化问题列表
+            initQuestionList();
+            
+            // 初始化API密钥管理
+            updateApiKeyStatus();
+            
+            // API密钥按钮事件监听
+            document.getElementById('save-api-key-btn').addEventListener('click', () => {
+                const apiKey = document.getElementById('api-key-input').value.trim();
+                if (!apiKey) {
+                    alert('请输入API密钥');
+                    return;
+                }
+                if (!apiKey.startsWith('sk-')) {
+                    if (!confirm('API密钥通常以"sk-"开头。您确定要继续吗？')) {
+                        return;
+                    }
+                }
+                setApiKey(apiKey);
+                alert('API密钥已保存');
+            });
+            
+            document.getElementById('clear-api-key-btn').addEventListener('click', () => {
+                if (confirm('确定要清除已保存的API密钥吗？')) {
+                    clearApiKey();
+                    alert('API密钥已清除');
+                }
+            });
+            
+            // API密钥输入框回车保存
+            document.getElementById('api-key-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('save-api-key-btn').click();
+                }
+            });
+        }
+        
+        // 页面加载完成后初始化
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
