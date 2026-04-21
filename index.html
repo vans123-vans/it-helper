@@ -565,6 +565,86 @@
             font-weight: bold;
         }
         
+        /* Gist共享配置样式 */
+        .gist-section {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #e9f7fe;
+            border: 1px solid #b3e0ff;
+            border-radius: 8px;
+        }
+        
+        .gist-config {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .gist-config label {
+            font-weight: bold;
+            color: #495057;
+            white-space: nowrap;
+        }
+        
+        .gist-config input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 250px;
+        }
+        
+        .gist-config button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s ease;
+        }
+        
+        #save-gist-config-btn {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        #save-gist-config-btn:hover {
+            background-color: #138496;
+        }
+        
+        #sync-gist-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        #sync-gist-btn:hover {
+            background-color: #0069d9;
+        }
+        
+        .gist-status {
+            font-size: 14px;
+            color: #6c757d;
+            padding: 5px 0;
+        }
+        
+        .gist-status.connected {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .gist-status.disconnected {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .gist-status.syncing {
+            color: #17a2b8;
+            font-weight: bold;
+        }
+        
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -585,6 +665,21 @@
             }
             
             .api-key-input button {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            
+            .gist-config {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .gist-config input {
+                min-width: 100%;
+                margin-bottom: 10px;
+            }
+            
+            .gist-config button {
                 width: 100%;
                 margin-bottom: 5px;
             }
@@ -621,6 +716,36 @@
             </div>
             <div id="api-key-status" class="api-key-status">
                 密钥状态：未设置
+            </div>
+        </div>
+        
+        <div class="gist-section">
+            <div class="gist-config">
+                <label for="gist-id-input">GitHub Gist ID：</label>
+                <input 
+                    type="text" 
+                    id="gist-id-input" 
+                    placeholder="请输入GitHub Gist ID"
+                />
+                <label for="gist-token-input">GitHub令牌：</label>
+                <input 
+                    type="password" 
+                    id="gist-token-input" 
+                    placeholder="请输入GitHub个人访问令牌（需gist权限）"
+                />
+                <button id="save-gist-config-btn">保存配置</button>
+                <button id="sync-gist-btn">同步数据</button>
+            </div>
+            <div id="gist-status" class="gist-status">
+                共享状态：未配置
+            </div>
+            <div style="font-size: 12px; color: #6c757d; margin-top: 10px;">
+                <strong>使用说明：</strong><br>
+                1. 在GitHub创建Gist（文件名为it_questions.json，内容为[]）<br>
+                2. 获取Gist ID（URL中的长字符串）<br>
+                3. 生成GitHub令牌（需gist权限）<br>
+                4. 填写以上信息并保存配置<br>
+                5. 点击"同步数据"加载共享问题库
             </div>
         </div>
         
@@ -778,6 +903,144 @@
                 apiKeyInput.value = '';
             }
         }
+        
+        // Gist共享配置管理
+        function getGistConfig() {
+            const gistId = localStorage.getItem('gist_id') || '';
+            const gistToken = localStorage.getItem('gist_token') || '';
+            return { gistId, gistToken };
+        }
+        
+        function setGistConfig(gistId, gistToken) {
+            localStorage.setItem('gist_id', gistId);
+            localStorage.setItem('gist_token', gistToken);
+            updateGistStatus();
+        }
+        
+        function clearGistConfig() {
+            localStorage.removeItem('gist_id');
+            localStorage.removeItem('gist_token');
+            updateGistStatus();
+        }
+        
+        function updateGistStatus() {
+            const { gistId, gistToken } = getGistConfig();
+            const statusElement = document.getElementById('gist-status');
+            const gistIdInput = document.getElementById('gist-id-input');
+            const gistTokenInput = document.getElementById('gist-token-input');
+            
+            if (gistId && gistToken) {
+                const maskedToken = gistToken.substring(0, 8) + '...' + gistToken.substring(gistToken.length - 4);
+                statusElement.textContent = `共享状态：已配置 (Gist: ${gistId.substring(0, 8)}...)`;
+                statusElement.className = 'gist-status connected';
+                gistIdInput.value = '';
+                gistTokenInput.value = '';
+            } else {
+                statusElement.textContent = '共享状态：未配置';
+                statusElement.className = 'gist-status disconnected';
+                gistIdInput.value = '';
+                gistTokenInput.value = '';
+            }
+        }
+        
+        // 从Gist加载问题
+        async function loadQuestionsFromGist(gistId, gistToken) {
+            try {
+                const statusElement = document.getElementById('gist-status');
+                statusElement.textContent = '共享状态：同步中...';
+                statusElement.className = 'gist-status syncing';
+                
+                const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+                    headers: {
+                        'Authorization': `token ${gistToken}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Gist API错误: ${response.status}`);
+                }
+                
+                const gistData = await response.json();
+                const questionsFile = gistData.files['it_questions.json'];
+                
+                if (!questionsFile) {
+                    throw new Error('Gist中未找到it_questions.json文件');
+                }
+                
+                const questions = JSON.parse(questionsFile.content);
+                if (!Array.isArray(questions)) {
+                    throw new Error('Gist数据格式不正确');
+                }
+                
+                statusElement.textContent = '共享状态：已同步';
+                statusElement.className = 'gist-status connected';
+                return questions;
+            } catch (error) {
+                const statusElement = document.getElementById('gist-status');
+                statusElement.textContent = `共享状态：错误 (${error.message})`;
+                statusElement.className = 'gist-status disconnected';
+                throw error;
+            }
+        }
+        
+        // 保存问题到Gist
+        async function saveQuestionsToGist(gistId, gistToken, questions) {
+            try {
+                const statusElement = document.getElementById('gist-status');
+                statusElement.textContent = '共享状态：上传中...';
+                statusElement.className = 'gist-status syncing';
+                
+                const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `token ${gistToken}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        files: {
+                            'it_questions.json': {
+                                content: JSON.stringify(questions, null, 2)
+                            }
+                        }
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Gist API错误: ${response.status}`);
+                }
+                
+                statusElement.textContent = '共享状态：已保存';
+                statusElement.className = 'gist-status connected';
+                return true;
+            } catch (error) {
+                const statusElement = document.getElementById('gist-status');
+                statusElement.textContent = `共享状态：错误 (${error.message})`;
+                statusElement.className = 'gist-status disconnected';
+                throw error;
+            }
+        }
+        
+        // 同步Gist数据（从Gist加载并更新本地）
+        async function syncWithGist() {
+            const { gistId, gistToken } = getGistConfig();
+            
+            if (!gistId || !gistToken) {
+                alert('请先配置Gist ID和GitHub令牌');
+                return;
+            }
+            
+            try {
+                const questions = await loadQuestionsFromGist(gistId, gistToken);
+                saveQuestions(questions); // 保存到本地存储
+                renderQuestionList();
+                alert(`已从Gist同步${questions.length}个问题`);
+            } catch (error) {
+                alert(`同步失败: ${error.message}`);
+            }
+        }
+        
         // 系统提示词 - 限定为IT运维相关问题
         const SYSTEM_PROMPT = `你是一个专业的IT运维助手，专门解决北京视通公司内部的IT问题。
 请遵守以下规则：
@@ -880,9 +1143,22 @@
             });
         }
         
-        // 保存问题到本地存储
-        function saveQuestions(questions) {
+        // 保存问题到本地存储和Gist（如果配置了Gist）
+        async function saveQuestions(questions) {
+            // 始终保存到本地存储
             localStorage.setItem('it_helpdesk_questions', JSON.stringify(questions));
+            
+            // 如果配置了Gist，也保存到Gist
+            const { gistId, gistToken } = getGistConfig();
+            if (gistId && gistToken) {
+                try {
+                    await saveQuestionsToGist(gistId, gistToken, questions);
+                    console.log('问题已同步到Gist');
+                } catch (error) {
+                    console.error('保存到Gist失败，但已保存到本地存储:', error);
+                    // 不抛出错误，因为本地存储已成功
+                }
+            }
         }
         
         // 渲染问题列表
@@ -998,7 +1274,7 @@
             submitBtn.textContent = '更新问题';
             
             // 临时事件处理器
-            const handleEditSubmit = (e) => {
+            const handleEditSubmit = async (e) => {
                 e.preventDefault();
                 
                 const title = document.getElementById('new-question-title').value.trim();
@@ -1012,7 +1288,7 @@
                 
                 // 更新问题
                 questions[index] = { title, category, solution };
-                saveQuestions(questions);
+                await saveQuestions(questions);
                 
                 // 恢复原始状态
                 formTitle.textContent = originalTitle;
@@ -1036,7 +1312,7 @@
         }
         
         // 删除问题
-        function deleteQuestion(index) {
+        async function deleteQuestion(index) {
             if (!confirm('确定要删除这个问题吗？')) {
                 return;
             }
@@ -1048,7 +1324,7 @@
             }
             
             questions.splice(index, 1);
-            saveQuestions(questions);
+            await saveQuestions(questions);
             renderQuestionList();
             alert('问题已删除');
         }
@@ -1239,7 +1515,7 @@
         });
         
         // 添加问题表单处理
-        addQuestionForm.addEventListener('submit', (e) => {
+        addQuestionForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const title = document.getElementById('new-question-title').value.trim();
@@ -1265,7 +1541,7 @@
             questions.push({ title, category, solution });
             
             // 保存到本地存储
-            saveQuestions(questions);
+            await saveQuestions(questions);
             
             // 显示成功消息
             successMessage.classList.add('show');
@@ -1351,7 +1627,7 @@
                 if (!file) return;
                 
                 const reader = new FileReader();
-                reader.onload = (e) => {
+                reader.onload = async (e) => {
                     try {
                         const importedQuestions = JSON.parse(e.target.result);
                         if (!Array.isArray(importedQuestions)) {
@@ -1370,7 +1646,7 @@
                             }
                         });
                         
-                        saveQuestions(mergedQuestions);
+                        await saveQuestions(mergedQuestions);
                         renderQuestionList();
                         alert(`成功导入${importedQuestions.length}个问题，当前共有${mergedQuestions.length}个问题`);
                     } catch (error) {
@@ -1418,6 +1694,40 @@
             document.getElementById('api-key-input').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     document.getElementById('save-api-key-btn').click();
+                }
+            });
+            
+            // 初始化Gist配置管理
+            updateGistStatus();
+            
+            // Gist配置按钮事件监听
+            document.getElementById('save-gist-config-btn').addEventListener('click', () => {
+                const gistId = document.getElementById('gist-id-input').value.trim();
+                const gistToken = document.getElementById('gist-token-input').value.trim();
+                
+                if (!gistId || !gistToken) {
+                    alert('请输入Gist ID和GitHub令牌');
+                    return;
+                }
+                
+                setGistConfig(gistId, gistToken);
+                alert('Gist配置已保存');
+            });
+            
+            document.getElementById('sync-gist-btn').addEventListener('click', async () => {
+                await syncWithGist();
+            });
+            
+            // Gist输入框回车保存
+            document.getElementById('gist-id-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('save-gist-config-btn').click();
+                }
+            });
+            
+            document.getElementById('gist-token-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('save-gist-config-btn').click();
                 }
             });
         }
